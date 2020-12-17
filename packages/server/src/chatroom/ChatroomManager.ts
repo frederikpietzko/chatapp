@@ -1,4 +1,8 @@
-import { CreateChatroomMessage, MessageType } from '@chatapp/common';
+import {
+  CreateChatroomMessage,
+  ErrorMessage,
+  MessageType,
+} from '@chatapp/common';
 import { Socket } from 'socket.io';
 import { MessageHandler } from '../messageHandlers';
 import { ChatroomBroker } from '../brokers';
@@ -48,12 +52,16 @@ export class ChatroomManager {
     );
   }
 
-  public addToChatroom(chatroomId: string, socket: Socket) {
+  public addToChatroom(chatroomId: string, socket: Socket, username: string) {
     const chatroom = this._activeChatrooms.find(
       (chatroom) => chatroomId === chatroom.chatroomId
     );
     if (!chatroom) {
-      socket.send();
+      socket.emit(MessageType.ERROR, {
+        message: 'Chatroom does not exist.',
+      } as ErrorMessage);
     }
+    chatroom!.addToChatroom(socket, username);
+    return chatroom;
   }
 }

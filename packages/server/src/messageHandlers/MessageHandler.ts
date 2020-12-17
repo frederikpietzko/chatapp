@@ -8,12 +8,22 @@ export interface MessageHandlerConfig {
   handeledMessageTypes: MessageType[];
 }
 
+interface OptionalMessageHandlerConfig {
+  socket?: Socket;
+  broker?: BaseBroker;
+  handeledMessageTypes?: MessageType[];
+}
+
 export class MessageHandler {
-  constructor(config: MessageHandlerConfig) {
+  constructor(private config: MessageHandlerConfig) {
     for (const messageType of config.handeledMessageTypes) {
-      config.socket.on(messageType.toString(), (message: BaseMessage) =>
-        config.broker.receive(messageType, message, config.socket)
+      this.config.socket.on(messageType.toString(), (message: BaseMessage) =>
+        this.config.broker.receive(messageType, message, this.config.socket)
       );
     }
+  }
+
+  copyWith(config: OptionalMessageHandlerConfig) {
+    return new MessageHandler({ ...this.config, ...config });
   }
 }

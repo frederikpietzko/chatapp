@@ -12,19 +12,25 @@ const ADMIN_MESSAGE_TYPES = [
   MessageType.CREATE_CHATROOM,
 ];
 
-const createAllChatMessageHandler = (socket: Socket) =>
-  new MessageHandler({
+const createAllChatMessageHandler = (socket: Socket) => {
+  console.log('All Chat Message Handler');
+  const messageHandler = new MessageHandler({
     broker: allChatBroker,
     handeledMessageTypes: ALL_CHAT_MESSAGE_TYPES,
     socket,
   });
+  allChatBroker.registerSocket(socket, messageHandler);
+};
 
-const createAdminMessageHandler = (socket: Socket) =>
-  new MessageHandler({
+const createAdminMessageHandler = (socket: Socket) => {
+  console.log('Admin Message Handler');
+  const messageHandler = new MessageHandler({
     broker: adminBroker,
     handeledMessageTypes: ADMIN_MESSAGE_TYPES,
     socket,
   });
+  adminBroker.registerSocket(socket, messageHandler);
+};
 
 const SETUP_FUNCTIONS = [
   createAdminMessageHandler,

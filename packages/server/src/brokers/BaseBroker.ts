@@ -1,6 +1,6 @@
 import { BaseMessage, MessageType } from '@chatapp/common';
 import { Socket } from 'socket.io';
-import { MessageHandler } from 'src/messageHandlers';
+import { MessageHandler } from '../messageHandlers';
 
 type ActiveSocket = {
   socket: Socket;

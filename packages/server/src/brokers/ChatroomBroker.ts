@@ -6,10 +6,14 @@ export class ChatroomBroker extends BaseBroker {
     super();
   }
 
-  send(message: BaseMessage): void {
-    throw new Error('Method not implemented.');
+  send(message: BaseMessage, messageType?: MessageType): void {
+    for (const { socket } of this.activeSockets) {
+      socket.emit(messageType || MessageType.CHATROOM_MESSAGE, message);
+    }
   }
   receive(messageType: MessageType, message: BaseMessage): void {
-    throw new Error('Method not implemented.');
+    if (messageType === MessageType.CHATROOM_MESSAGE) {
+      this.send(message);
+    }
   }
 }

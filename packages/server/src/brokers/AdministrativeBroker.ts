@@ -1,10 +1,12 @@
 import {
   AddToChatroomMessage,
+  BaseMessage,
+  Chatroom,
   CreateChatroomMessage,
   MessageType,
 } from '@chatapp/common';
 import { Socket } from 'socket.io';
-import { ChatroomManager } from 'src/chatroom';
+import { ChatroomManager } from '../chatroom';
 import { BaseBroker } from './BaseBroker';
 
 export class AdministrativeBroker extends BaseBroker {
@@ -16,21 +18,32 @@ export class AdministrativeBroker extends BaseBroker {
     return this._instance;
   }
 
-  send(_: CreateChatroomMessage): void {
-    throw new Error('Method not implemented.');
+  send(message: BaseMessage, messageType?: MessageType): void {
+    for (const { socket } of this.activeSockets) {
+      socket.emit(messageType || MessageType.CREATE_CHATROOM, message);
+    }
   }
 
   receive(messageType: MessageType, message: any, socket: Socket): void {
     if (messageType === MessageType.CREATE_CHATROOM) {
-      ChatroomManager.instance.createChatroom(
+      const chatroom = ChatroomManager.instance.createChatroom(
         socket,
         message as CreateChatroomMessage
       );
+      this.send(<BaseMessage<Chatroom>>{
+        ...message,
+        object: {
+          name: chatroom.name,
+          chatroomId: chatroom.chatroomId,
+          ownerUsername: chatroom.ownerUsername,
+        },
+      });
     }
     if (messageType === MessageType.ADD_TO_CHATROOM) {
       ChatroomManager.instance.addToChatroom(
         (message as AddToChatroomMessage).chatroomId,
-        socket
+        socket,
+        (message as AddToChatroomMessage).username
       );
     }
   }
